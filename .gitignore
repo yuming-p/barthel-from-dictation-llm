@@ -8,3 +8,6 @@ wheels/
 
 # Virtual environments
 .venv
+
+# for kaggle
+voize_bundle
