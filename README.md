@@ -12,26 +12,28 @@ All data is synthetic. No real patient data is used.
 
 Results on 40 held-out test notes (400 item decisions; details and confidence intervals in section 4):
 
-| Model | Accuracy | Hallucination | USD / 1,000 notes |
-|---|---|---|---|
-| always `not_assessed` (floor) | 65.8 % | 0 % | – |
-| Claude Haiku 5.5, zero-shot | 98.2 % | 0.0 % | 0.39 |
-| Claude Sonnet 5.5, zero-shot | 98.2 % | 0.8 % | 5.37 |
-| Gemma 3 4B, untrained | 54.0 % | 43.3 % | ~1.0 (assumed GPU price) |
-| Gemma 3 4B + LoRA, 180 notes | 88.0 % | 5.3 % | ~0.95 (assumed GPU price) |
+| Model | Accuracy | Precision | Recall | Hallucination | USD / 1,000 notes |
+|---|---|---|---|---|---|
+| always `not_assessed` (floor) | 65.8 % | n/a | 0.0 % | 0.0 % | – |
+| Claude Haiku 5.5, zero-shot | 98.2 % | 100.0 % | 96.4 % | 0.0 % | 0.39 |
+| Claude Sonnet 5.5, zero-shot | 98.2 % | 98.5 % | 97.1 % | 0.8 % | 5.37 |
+| Gemma 3 4B, untrained | 54.0 % | 50.0 % | 83.2 % | 43.3 % | ~1.0 (inference only, assumed GPU price) |
+| Gemma 3 4B + LoRA, 180 notes | 88.0 % | 90.5 % | 97.1 % | 5.3 % | ~0.95 (inference only, assumed GPU price; plus ~$0.27 one-off training) |
 
-- **Frontier models are close to the ceiling on this task.** Claude scores 97-98 % in every setting. Haiku
-  matches Sonnet at about 1/14 of the cost, and 6-shot examples did not help (differences are within noise).
-  What is left is mostly contested labels, scoring-rule boundaries and inference-versus-abstain judgement calls.
-- **A small untrained model is unusable.** Gemma 3 4B scores below a rule that always abstains: it fills in
-  almost every item instead of answering `not_assessed` when the note does not say.
-- **Fine-tuning on 180 notes closes most, not all, of the gap.** LoRA lifts Gemma by 34 points (hallucination
+Precision = of the items the model scored, the share the note actually supports (low = guessing). Recall = of
+the items the note supports, the share the model scored (low = over-cautious). Accuracy alone is inflated by
+abstention: 66 % of the decisions are `not_assessed`, so a model that always abstains already scores 65.8 %.
+
+- **Fine-tuning on 180 notes closes most, not all, of the gap.** Frontier models are close to the ceiling on this task. LoRA lifts Gemma by 34 points (hallucination
   43 % to 5 %) but stays about 10 points behind Claude. The largest error type is wrong score levels
   (off by one level), not hallucination.
 - **Answer to the question:** on this task a small fine-tuned model gets within about 10 points of a frontier
-  API but does not match it, and it gains nothing on cost or speed against Haiku (about $0.95 vs $0.39 per
-  1,000 notes, 6.8 s vs 3.6 s per note). Its case is **self-hosting and privacy**: open weights that can run
-  without sending patient text to a third party.
+  API but does not match it, and it does not gain on cost or speed against Haiku. (cost of gemma3 for this demo is 0$ since it was ran on colab with free tier). Its case is **self-hosting and privacy**: open weights that can run
+  without sending patient text to a third party. The two also fail in opposite ways. **Claude is cautious:** when
+  the evidence is indirect it often abstains (hallucination 0-0.8 %, but recall on inferred items only 87-94 %).
+  **The fine-tuned Gemma commits:** it scores nearly everything that looks related (5.3 % hallucination on
+  unmentioned items, 98 % recall on inferred items), and about a third of its scores on inferred items are the
+  wrong level (63 % precision). 
 - **How far to trust this:** synthetic notes, only 40 test notes (wide intervals), labels reviewed by a model
   rather than a nurse, one run per setting (run-to-run variance not measured), and an unexplained drop from
   95 % on validation to 88 % on test (different writer and a different share of unmentioned items).
@@ -94,18 +96,17 @@ annotating which items each dictation supports.
 | Small open-weight model (Gemma 3 4B), untrained | none | free cloud T4 notebook, 4-bit; self-hostable |
 | Same small model + LoRA fine-tune | 180 notes (20 held out for validation) | trained and evaluated on a free cloud T4 notebook; self-hostable |
 
-"Self-hostable" means open weights that a hospital could run on its own infrastructure, so no patient text goes
-to a third-party API. Everything here ran on a free cloud T4 notebook (Colab or Kaggle); the model was **not** run on a laptop,
+
+Everything here ran on a free cloud T4 notebook (Colab or Kaggle); the model was **not** run on a laptop,
 so no laptop latency or cost is claimed. A hosted notebook is acceptable only because the data is synthetic.
 
 The test set is never used for tuning. The prompt, output schema and few-shot examples (`barthel/prompt.py`) were
 frozen before the first test run. If a later change is needed, both versions are reported; the first is not
 replaced. Few-shot examples come from the 180 training notes only.
 
-**Home advantage (caveat of synthetic data).** Each frontier family wrote part of the data:
-Claude wrote the training notes (used for few-shot examples and fine-tuning), ChatGPT wrote the test notes.
-A model may do better on text in its own family's style. Mitigation: evaluate a different model
-within each family than the one that wrote the data, and report both families side by side.
+**Home advantage (caveat of synthetic data).** 
+Claude Opus 5.5 wrote the training notes (used for few-shot examples and fine-tuning), ChatGPT 6 wrote the test notes. Claude Haiku and Sonnet are used for execution of the task.
+A model may do better on text in its own family's style. 
 The effect cannot be removed completely and is stated with the results.
 
 ## 4. Evaluation
@@ -135,31 +136,33 @@ Differences smaller than the interval width are not treated as findings.
 
 *All models on the 40 test notes (400 decisions).* Percentages; 95 % note-level bootstrap CI in
 brackets. Generated by `barthel/evaluation.py` into `runs/results_test.md`. One run per row. The Gemma rows use plain
-(unconstrained) greedy generation and a free-tier T4 GPU; their cost uses an assumed $0.50 / GPU hour.
+(unconstrained) greedy generation and a free-tier T4 GPU. Their cost is **inference only**, from measured
+seconds per note at an assumed $0.50 / GPU hour. It excludes model loading and idle time and the one-off
+LoRA training (32 min, about $0.27 at the same price). Notes were generated one at a time (batch size 1), so
+it is an upper bound; batched serving would be cheaper per note but was not measured.
 
-| Model | Accuracy | Precision | Recall | Hallucination ↓ | Score acc. explicit / inferred | USD / 1,000 notes | s / note |
-|---|---|---|---|---|---|---|---|
-| always `not_assessed` | 65.8 [63-68] | n/a | 0.0 [0-0] | 0.0 [0-0] | 0.0 / 0.0 | – | – |
-| majority score per item | 13.2 [10-17] | 34.2 [32-37] | 100.0 [100-100] | 100.0 [100-100] | 34.4 / 46.8 | – | – |
-| Haiku 5.5, zero-shot | 98.2 [97-99] | 100.0 [100-100] | 96.4 [93-99] | 0.0 [0-0] | 97.8 / 89.4 | 0.39 | 3.6 |
-| Haiku 5.5, 6-shot | 97.2 [96-99] | 98.5 [96-100] | 96.4 [94-99] | 0.8 [0-2] | 97.8 / 85.1 | 0.35 | 3.8 |
-| Sonnet 5.5, zero-shot | 98.2 [97-100] | 98.5 [96-100] | 97.1 [94-99] | 0.8 [0-2] | 98.9 / 91.5 | 5.37 | 3.8 |
-| Sonnet 5.5, 6-shot | 97.5 [96-99] | 100.0 [100-100] | 93.4 [90-97] | 0.0 [0-0] | 96.7 / 85.1 | 4.67 | 3.0 |
-| Gemma 3 4B, untrained | 54.0 [48-59] | 50.0 [46-54] | 83.2 [76-90] | 43.3 [37-51] | 50.0 / 46.8 | 1.01 | 7.3 |
-| Gemma 3 4B + LoRA (180 notes) | 88.0 [85-91] | 90.5 [86-95] | 97.1 [93-100] | 5.3 [3-8] | 82.2 / 61.7 | 0.95 | 6.8 |
+| Model | Accuracy | Precision | Recall | Hallucination ↓ | Precision expl. / infer. | Recall expl. / infer. | USD / 1,000 notes | s / note |
+|---|---|---|---|---|---|---|---|---|
+| always `not_assessed` | 65.8 [63-68] | n/a | 0.0 [0-0] | 0.0 [0-0] | n/a / n/a | 0.0 / 0.0 | – | – |
+| majority score per item | 13.2 [10-17] | 34.2 [32-37] | 100.0 [100-100] | 100.0 [100-100] | 34.4 / 46.8 | 100.0 / 100.0 | – | – |
+| Haiku 5.5, zero-shot | 98.2 [97-99] | 100.0 [100-100] | 96.4 [93-99] | 0.0 [0-0] | 100.0 / 95.5 | 97.8 / 93.6 | 0.39 | 3.6 |
+| Haiku 5.5, 6-shot | 97.2 [96-99] | 98.5 [96-100] | 96.4 [94-99] | 0.8 [0-2] | 100.0 / 90.9 | 97.8 / 93.6 | 0.35 | 3.8 |
+| Sonnet 5.5, zero-shot | 98.2 [97-100] | 98.5 [96-100] | 97.1 [94-99] | 0.8 [0-2] | 100.0 / 97.7 | 98.9 / 93.6 | 5.37 | 3.8 |
+| Sonnet 5.5, 6-shot | 97.5 [96-99] | 100.0 [100-100] | 93.4 [90-97] | 0.0 [0-0] | 100.0 / 97.6 | 96.7 / 87.2 | 4.67 | 3.0 |
+| Gemma 3 4B, untrained | 54.0 [48-59] | 50.0 [46-54] | 83.2 [76-90] | 43.3 [37-51] | 62.5 / 52.4 | 80.0 / 89.4 | 1.01 | 7.3 |
+| Gemma 3 4B + LoRA (180 notes) | 88.0 [85-91] | 90.5 [86-95] | 97.1 [93-100] | 5.3 [3-8] | 85.1 / 63.0 | 96.7 / 97.9 | 0.95 | 6.8 |
 | OpenAI | *not run* | | | | | | |
 
-On the 20 validation notes (same writer and absent share as training): untrained 58.0 % accuracy,
-68.5 % hallucination; LoRA 95.0 % accuracy, 1.4 % hallucination.
+The two "expl. / infer." columns are restricted to the items the gold labels mark as explicit or
+inferred: *recall* = share of those items the model scored at all; *precision* = of the items it scored, the
+share with exactly the right level (so precision × recall = score accuracy for that type). The headline
+Precision / Recall columns are about detection only: is the item supported by the note at all.
+
 
 Notes on these numbers:
 - **Costs are in USD** from measured token usage, with prompt caching on (the rules and JSON schema are a
   fixed ~2,750-token prefix, read at 10 % of the input price). Output tokens (mostly the model's thinking)
   are about 85–90 % of the remaining cost. Opus 5.5 was not evaluated because it wrote the training notes.
-- **All four Claude runs are within noise of each other.** 7–11 of 400 decisions are wrong per run and the
-  intervals overlap. Haiku matches Sonnet at about 1/14 of the cost. 6-shot is not better than zero-shot
-  (6 decisions fixed, 13 broken across both models, not significant); run-to-run variance and the choice
-  of the 6 examples (one draw, seed 0) have not been measured yet.
 - **Error analysis:** `runs/error_analysis.txt` lists the 59 decisions that at least one of the four Claude
   runs or Gemma + LoRA got wrong (18 of them involve a Claude run), with every run's answer, the note text
   and the gold evidence; regenerate with `uv run python -m barthel.errors --notes`. Only 2 are wrong in all four
@@ -181,29 +184,13 @@ Notes on these numbers:
   explanation is that the training patients come from a few archetypes where many items are dependent.
 - **Validation vs test:** 95.0 % on `val` but 88.0 % on test. The two differences, a 35 % vs 66 % absent
   share and a Claude vs ChatGPT writer, cannot be separated with these runs.
-- **Cost and speed are not an advantage:** about $0.95 per 1,000 notes and 6.8 s per note on a T4 (long
-  prompt, 4-bit, assumed GPU price) against $0.39 and 3.6 s for Haiku through the API. The case for the small
-  model is self-hosting and privacy, not price.
-- Fine-tuning settings were fixed before any test run: LoRA r=16, alpha 16, lr 2e-4, 3 epochs, effective batch
+
+- **Fine-tuning** settings were fixed before any test run: LoRA r=16, alpha 16, lr 2e-4, 3 epochs, effective batch
   16, loss on the answer only; `val` was used for monitoring only. Single run per setting; run-to-run
   variance is unmeasured.
 
-## 5. Status
 
-- [x] Barthel rules (ICD-10-GM) and label sampler (`data/generate_synthetic_data.py`)
-- [x] Training set: 200 notes, validated, data card
-- [x] First (template-based) test set reviewed and replaced by a free-text rewrite
-- [ ] Check rewritten test set (format, sentence reuse, leaks)
-- [x] Evaluation script + floor baselines + bootstrap CIs (`barthel/evaluation.py`, tested)
-- [x] Shared prompt (rules in the prompt for all models; the `get_barthel_rule` tool was dropped from the main run)
-- [x] Claude runs (Haiku 5.5, Sonnet 5.5; zero-shot and 6-shot) and first error analysis
-- [ ] Noise check: repeat identical runs, 6-shot with other example draws
-- [ ] OpenAI run (optional)
-- [x] Untrained small model (Gemma 3 4B)
-- [x] LoRA fine-tuning on 180 notes (`notebooks/finetune_gemma3_nursing_notes_to_barthel_index.ipynb`)
-- [ ] Final write-up (error categories, small-vs-frontier conclusion)
-
-## 6. Limitations
+## 5. Limitations
 
 - **Label quality is checked automatically, not by a human.** Notes whose text does not clearly express
   their label count as model errors, so no model can reach 100 %; the true ceiling is unknown.
@@ -211,20 +198,18 @@ Notes on these numbers:
 - Synthetic notes are cleaner than real dictations (no speech-recognition errors, more regular phrasing).
 - Labels assume the dictation is clinically correct.
 - Some score levels are rare in the training data (see `DATA_CARD.md`).
-- 40 test notes give wide confidence intervals; only large differences are meaningful.
+- **Small samples, everywhere.**
+  - *Test:* 40 notes = 400 decisions, of which only 137 have a documented score (90 explicit, 47 inferred).
+    Confidence intervals are wide (e.g. Gemma + LoRA accuracy 85-91 %), so differences of a few points,
+    such as between the Claude runs, are not findings. Per-item results rest on only 9-24 documented cases
+    each (see `data/test/README_barthel_test_40.md`), so none are reported.
+  - *Training and validation:* 180 notes to train and 20 to validate. The 20 validation notes are 200
+    decisions, so one decision moves the score by 0.5 points and validation numbers are very noisy. How much
+    more data would help the small model is unknown (no learning curve was run).
+  - *Repeats:* one run per setting, one draw of the few-shot examples; run-to-run variance is unmeasured.
 
-## 7. Possible extensions (not built)
 
-- **Validation with retry:** a validator checks the output (valid scores, evidence present) and the model corrects itself.
-- **Patient state across notes:** routine notes update only the items they mention; others keep their last value.
-- **Follow-up questions:** for items missing from an assessment dictation, the agent asks the nurse;
-  the answer is simulated from `true_score`, and the gain from one round of questions is measured.
-- **Naive vs. correct training:** fine-tune on `note → true_score` vs. `note → target` and compare hallucination rates.
-- **Learning curve:** fine-tune on 30 / 100 / 180 notes to see how much data the small model needs.
-- **Routing:** split one dictation into report categories (vital signs, catheter care, …) and the Barthel form.
-- Human blind labelling of the test set to measure label quality; German speech-recognition noise; real, expert-annotated dictations.
-
-## 8. Repository layout
+## 6. Repository layout
 
 ```
 barthel/

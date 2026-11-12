@@ -51,8 +51,8 @@ COUNT_KEYS = [
     "present", "present_scored",         # gold scored / of those, model scored (recall)
     "scored",                            # model scored (precision denominator)
     "scored_present",                    # model scored AND gold scored (precision numerator)
-    "explicit", "explicit_correct",
-    "inferred", "inferred_correct",
+    "explicit", "explicit_scored", "explicit_correct",   # gold mention type: total / model scored / exactly right
+    "inferred", "inferred_scored", "inferred_correct",
     "parse_fail",
 ]
 
@@ -84,6 +84,7 @@ def note_counts(gold_note: dict, pred: dict | None, levels: dict[str, set] = LEV
             m = g.get("mention")
             if m in ("explicit", "inferred"):
                 c[m] += 1
+                c[m + "_scored"] += scored
                 c[m + "_correct"] += right
     return c
 
@@ -98,6 +99,14 @@ def metrics_from_counts(c: dict[str, int]) -> dict[str, float]:
         "hallucination": _ratio(c["absent_scored"], c["absent"]),
         "recall": _ratio(c["present_scored"], c["present"]),
         "precision": _ratio(c["scored_present"], c["scored"]),
+        # Restricted to items whose gold mention type is explicit / inferred:
+        #   recall_<m>    = share the model scored at all (detection)
+        #   precision_<m> = of those it scored, share with exactly the right score
+        #   score_acc_<m> = precision_<m> * recall_<m>
+        "recall_explicit": _ratio(c["explicit_scored"], c["explicit"]),
+        "recall_inferred": _ratio(c["inferred_scored"], c["inferred"]),
+        "precision_explicit": _ratio(c["explicit_correct"], c["explicit_scored"]),
+        "precision_inferred": _ratio(c["inferred_correct"], c["inferred_scored"]),
         "score_acc_explicit": _ratio(c["explicit_correct"], c["explicit"]),
         "score_acc_inferred": _ratio(c["inferred_correct"], c["inferred"]),
         "parse_fail_rate": _ratio(c["parse_fail"], c["n"]),
@@ -198,14 +207,15 @@ def markdown_table(rows: list[tuple[str, dict, dict, dict | None]]) -> str:
     def plain(m, k):
         return "n/a" if m[k] != m[k] else f"{100 * m[k]:.1f}"
 
-    out = ["| Model | Accuracy | Precision | Recall | Hallucination | Score acc. explicit / inferred "
-           "| USD / 1,000 notes | s / note |", "|---|---|---|---|---|---|---|---|"]
+    out = ["| Model | Accuracy | Precision | Recall | Hallucination | Precision expl. / infer. "
+           "| Recall expl. / infer. | USD / 1,000 notes | s / note |", "|---|---|---|---|---|---|---|---|---|"]
     for name, m, ci, meta in rows:
         cost = f"{meta['usd_per_1000_notes']:.2f}" if meta else "–"
         secs = f"{meta['mean_seconds_per_note']:.1f}" if meta else "–"
         out.append(f"| {name} | {pct(m, ci, 'accuracy')} | {pct(m, ci, 'precision')} | {pct(m, ci, 'recall')} "
-                   f"| {pct(m, ci, 'hallucination')} | {plain(m, 'score_acc_explicit')} / "
-                   f"{plain(m, 'score_acc_inferred')} | {cost} | {secs} |")
+                   f"| {pct(m, ci, 'hallucination')} | {plain(m, 'precision_explicit')} / "
+                   f"{plain(m, 'precision_inferred')} | {plain(m, 'recall_explicit')} / "
+                   f"{plain(m, 'recall_inferred')} | {cost} | {secs} |")
     return "\n".join(out)
 
 

@@ -57,6 +57,26 @@ def test_hallucination_and_wrong_score(gold):
     assert m["accuracy"] == pytest.approx(18 / 20)      # wrong: sich_waschen, baden_duschen
     assert m["score_acc_explicit"] == pytest.approx(2 / 2)
     assert m["score_acc_inferred"] == pytest.approx(0 / 1)
+    # per mention type: explicit = essen(a), essen(b) both scored and right; inferred = sich_waschen scored, wrong
+    assert m["recall_explicit"] == 1 and m["precision_explicit"] == 1
+    assert m["recall_inferred"] == 1 and m["precision_inferred"] == 0
+    assert m["score_acc_inferred"] == m["precision_inferred"] * m["recall_inferred"]
+
+
+def test_split_precision_recall_decompose_score_accuracy():
+    # explicit essen=10 (scored right), explicit toilet=5 (abstained), inferred waschen=5 (scored wrong)
+    g = [make_note("a", {"essen": 10, "toilettenbenutzung": 5, "sich_waschen": 5}, {"sich_waschen": "inferred"})]
+    p = {"a": {**all_na(), "essen": 10, "sich_waschen": 0}}
+    m = ev.evaluate(g, p)
+    assert m["recall_explicit"] == pytest.approx(1 / 2) and m["precision_explicit"] == pytest.approx(1.0)
+    assert m["recall_inferred"] == 1 and m["precision_inferred"] == 0
+    assert m["score_acc_explicit"] == pytest.approx(m["precision_explicit"] * m["recall_explicit"])
+
+
+def test_split_precision_is_nan_when_nothing_scored():
+    g = [make_note("a", {"essen": 10})]
+    m = ev.evaluate(g, {"a": all_na()})
+    assert m["recall_explicit"] == 0 and m["precision_explicit"] != m["precision_explicit"]  # NaN
 
 
 def test_missing_note_and_invalid_values_are_parse_failures(gold):
@@ -155,3 +175,4 @@ def test_markdown_table_formats_rows_and_missing_meta(gold):
     assert len(lines) == 4 and lines[2].startswith("| floor |") and lines[2].endswith("| – | – |")
     assert "0.39 | 3.6 |" in lines[3]
     assert "n/a" in lines[2]  # precision is undefined when nothing was scored
+    assert lines[0].count("|") == lines[2].count("|")  # header and rows have the same number of columns
