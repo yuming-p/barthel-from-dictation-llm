@@ -240,7 +240,7 @@ Reproduce the results table:
 former `prompt.py` and `eval.py`. To rerun it on the current code, upload the `barthel/` folder and change the
 two imports to `barthel.prompt` and `barthel.evaluation`; the model and training settings are unaffected.
 
-## 8. AI assistance and attribution
+## 7. AI assistance and attribution
 
 - The code, tests and documentation in this repository were developed with Claude (Claude Code, Claude
   Sonnet 5.5), working interactively with the repository owner.
