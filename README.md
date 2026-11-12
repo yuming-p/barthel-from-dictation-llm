@@ -1,6 +1,6 @@
 # Barthel index from nursing dictations: small fine-tuned model vs. frontier API
 
-A small demo project: an LLM reads a German nursing dictation and fills in the **Barthel index**
+A small demo project inspired by [voize case study](https://www.voize.ai/de/loesungen/krankenhaus#case-study): an LLM reads a German nursing dictation and fills in the **Barthel index**
 (10 activities of daily living, 0–100 points). It answers one question:
 
 > When does a small, fine-tuned open model match a rented frontier model on quality,
