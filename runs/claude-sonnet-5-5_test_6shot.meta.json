@@ -1,0 +1,16 @@
+{
+ "model": "claude-sonnet-5-5",
+ "split": "test",
+ "shots": 6,
+ "n_notes": 40,
+ "cache": true,
+ "tokens": {
+  "in": 7936,
+  "cache_write": 2068,
+  "cache_read": 190612,
+  "out": 12752
+ },
+ "usd_per_1000_notes": 4.667,
+ "mean_seconds_per_note": 3.03,
+ "errors": []
+}

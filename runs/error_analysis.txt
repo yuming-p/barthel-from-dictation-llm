@@ -1,0 +1,104 @@
+18 decisions wrong in at least one run
+
+note      item                  gold mention     H0   H6   S0   S6  kinds
+test_0004 aufsetzen_umsetzen       0 explicit not_assessednot_assessednot_assessednot_assessed  missed
+test_0009 aufstehen_gehen         10 inferred     5    5   10not_assessed  missed,wrong_score
+test_0014 an_auskleiden           10 explicit not_assessed   10   10   10  missed
+test_0017 an_auskleiden           10 inferred not_assessed   10not_assessednot_assessed  missed
+test_0018 essen                   10 inferred    10not_assessed   10   10  missed
+test_0019 aufsetzen_umsetzen       0 inferred not_assessednot_assessednot_assessednot_assessed  missed
+test_0019 baden_duschen       not_assessed absent   not_assessednot_assessed    0not_assessed  hallucination
+test_0019 aufstehen_gehen     not_assessed absent   not_assessed    0not_assessednot_assessed  hallucination
+test_0025 aufsetzen_umsetzen      10 explicit    10not_assessed   10not_assessed  missed
+test_0026 aufsetzen_umsetzen      15 inferred not_assessednot_assessednot_assessed   15  missed
+test_0028 aufstehen_gehen         15 inferred    15   10   15not_assessed  missed,wrong_score
+test_0029 essen                   10 inferred     5    5    5   10  wrong_score
+test_0032 treppensteigen      not_assessed absent   not_assessed    0    0not_assessed  hallucination
+test_0033 essen                   10 inferred    10    5   10   10  wrong_score
+test_0034 aufstehen_gehen         10 explicit    10   10   10not_assessed  missed
+test_0034 an_auskleiden            5 inferred     5    5    5    0  wrong_score
+test_0037 essen                    5 inferred     5    5    5not_assessed  missed
+test_0038 aufstehen_gehen          5 inferred     5    5    5not_assessed  missed
+
+wrong per run: {'H0': 7, 'H6': 11, 'S0': 7, 'S6': 10}; wrong in all 4 runs: 2
+error kinds (counted per run): {'missed': 23, 'wrong_score': 8, 'hallucination': 4}
+
+0-shot vs 6-shot flips (same model):
+  H0->H6: fixed by examples 2, broken by examples 6
+     broken: test_0018 essen
+     broken: test_0019 aufstehen_gehen
+     broken: test_0025 aufsetzen_umsetzen
+     broken: test_0028 aufstehen_gehen
+     broken: test_0032 treppensteigen
+     broken: test_0033 essen
+  S0->S6: fixed by examples 4, broken by examples 7
+     broken: test_0009 aufstehen_gehen
+     broken: test_0025 aufsetzen_umsetzen
+     broken: test_0028 aufstehen_gehen
+     broken: test_0034 aufstehen_gehen
+     broken: test_0034 an_auskleiden
+     broken: test_0037 essen
+     broken: test_0038 aufstehen_gehen
+
+=== test_0004 ===
+Bei Herrn Brandt lag der Blutdruck am Morgen bei 126/73 mmHg, der Puls bei 69. Er blieb heute im Bett. Für die Mahlzeit musste ich ihm jeden Löffel reichen, selbst zum Mund führen konnte er das Essen nicht. Die Mundpflege habe ich ebenfalls vollständig übernommen. Die Einlage war seit Dienstbeginn zweimal wegen Stuhlgang zu wechseln; laut Übergabe kommt das an den meisten Tagen mehrmals vor. Zusätzlich war er laut Verlaufsdokumentation im Durchschnitt mehrmals täglich wegen unkontrollierten Urinverlusts durchnässt.
+  - aufsetzen_umsetzen: gold=0 (explicit), evidence='Er blieb heute im Bett.'
+
+=== test_0009 ===
+Also, bei Frau Lenz war es heute etwas wechselhaft. Sie konnte den Pullover selbst überziehen, die Hose habe ich ihr angezogen, weil sie sich nicht gut nach vorne beugen konnte. Mit dem Rollator ist sie vom Zimmer bis zum Stationsstützpunkt und wieder zurück gegangen, ohne dass ich sie festhalten musste; die Strecke liegt über 50 Meter. RR 133/77, Puls 80. Beim Baden war sie heute nicht.
+  - aufstehen_gehen: gold=10 (inferred), evidence='Mit dem Rollator ist sie vom Zimmer bis zum Stationsstützpunkt und wieder zurück gegangen, ohne dass ich sie festhalten musste; die Strecke liegt über 50 Meter.'
+
+=== test_0014 ===
+Frau Weber, heute 139/82, Puls 79. Sie hat sich die Kleidung selbst ausgesucht und Oberteil, Hose und Schuhe ohne Hilfe angezogen. Beim Wechsel vom Bett in den Rollstuhl habe ich sie am Becken und unter den Armen kräftig unterstützt. Die Dusche hat sie ausgelassen. Das Frühstück wurde von ihr selbst gegessen, nachdem ich die Marmelade geöffnet hatte.
+  - an_auskleiden: gold=10 (explicit), evidence='Sie hat sich die Kleidung selbst ausgesucht und Oberteil, Hose und Schuhe ohne Hilfe angezogen.'
+
+=== test_0017 ===
+Herr Seidel, DK liegt. RR 123/74, P 68. Katheterpflege und Beutelwechsel wurden von ihm selbst vorbereitet und durchgeführt; ich habe nur das Material angereicht. Er sagt, dass er seit Monaten keinen Urinverlust neben dem Katheter bemerkt. Die Kleidung hatte er vor meinem Eintreffen bereits vollständig angezogen. WC oder Toilettenstuhl nutzt er nicht, Stuhlgang erfolgt im Bett über das Steckbecken.
+  - an_auskleiden: gold=10 (inferred), evidence='Die Kleidung hatte er vor meinem Eintreffen bereits vollständig angezogen.'
+
+=== test_0018 ===
+Bei Frau Albers war der Blutdruck 114/71, Puls 74. Sie hat den Oberkörper selbst gewaschen und ihre Zähne geputzt; beim Kämmen und Waschen des Rückens half ich. Zum Umsetzen in den Sessel benötigte sie nur eine leichte Stütze an der Schulter. Sie stieg allein in die Dusche, wusch sich dort und trocknete sich vollständig ab. Das Mittagessen wurde ihr nur hingestellt.
+  - essen: gold=10 (inferred), evidence='Das Mittagessen wurde ihr nur hingestellt.'
+
+=== test_0019 ===
+Pat. Jansen, RR 135/80, P 86. Mobi im Bett, Lagerung nach Plan. Nahrungsaufnahme: Kost angereicht, Pat. konnte trotz Aufforderung nicht selbst zum Mund führen, vollständige Übernahme. Körperpflege durch Pflegepersonal, auch Mundpflege. Stuhlgang unkontrolliert, laut Verlauf in den letzten sieben Tagen an drei Tagen aufgetreten. DK-Versorgung durch Pflege.
+  - aufsetzen_umsetzen: gold=0 (inferred), evidence='Mobi im Bett, Lagerung nach Plan.'
+  - baden_duschen: gold=not_assessed (absent), evidence=None
+  - aufstehen_gehen: gold=not_assessed (absent), evidence=None
+
+=== test_0025 ===
+Pat. Eberle, RR 158/94, P 101. Mobi im Zimmer mit Rollator und Begleitung, Strecke etwa 12 m; beim Aufstehen aus dem Bett leichte Hilfe am Ellenbogen. Treppe nicht bewältigt. Körperpflege am Waschbecken vollständig durch Pflege, Pat. konnte die Arme nur kurz anheben. Mittagessen selbst gegessen, Brot vorher durch Pflege geschnitten. Verband am Unterarm trocken.
+  - aufsetzen_umsetzen: gold=10 (explicit), evidence='beim Aufstehen aus dem Bett leichte Hilfe am Ellenbogen.'
+
+=== test_0026 ===
+Herr Reuter, 125/78, Puls 70. Er hat heute die Dusche allein genutzt: selbst hineingegangen, Haare und Körper gewaschen, alles abgetrocknet und ohne Hilfe wieder herausgestiegen. Auch den Wechsel vom Bett auf den Sessel hat er ohne Handreichung geschafft. Die Treppe hat er mit meiner Aufsicht über eine Etage geschafft, da er an einer Stelle unsicher wurde. Sonst keine Besonderheiten.
+  - aufsetzen_umsetzen: gold=15 (inferred), evidence='Auch den Wechsel vom Bett auf den Sessel hat er ohne Handreichung geschafft.'
+
+=== test_0028 ===
+Herr Lauer, na ja, mit dem Anziehen klappt es inzwischen besser. Er hatte die Sachen auf dem Stuhl liegen und hat Hemd, Hose und Schuhe ohne meine Hilfe angezogen. Beim Wechsel vom Bett in den Sessel brauchte er nur, dass ich kurz danebenstand; anschließend ging er ohne Rollator einmal die 55 Meter bis zum Stationszimmer. RR 127/83, Puls 89. Für die Dusche war heute keine Zeit.
+  - aufstehen_gehen: gold=15 (inferred), evidence='anschließend ging er ohne Rollator einmal die 55 Meter bis zum Stationszimmer.'
+
+=== test_0029 ===
+Frau Scholz, RR 149/85, Puls 92. In dieser Woche war die Vorlage an drei verschiedenen Tagen nach unbemerktem Stuhlabgang verschmutzt. Beim Toilettengang brauchte sie heute Hilfe beim Umsetzen auf den Toilettenstuhl und bei der Reinigung. Das Mittagessen hat sie selbstständig gegessen, nachdem ich die Suppe eingeschenkt hatte. Die Hautpflege erfolgte nach Plan.
+  - essen: gold=10 (inferred), evidence='Das Mittagessen hat sie selbstständig gegessen, nachdem ich die Suppe eingeschenkt hatte.'
+
+=== test_0032 ===
+Herr Wendt, Frühdienst, RR 162/96, P 98. Er konnte heute weder stehen noch den Rollstuhl selbst bewegen; der Aufenthalt erfolgte überwiegend im Bett. Für den Wechsel in den Pflegesessel war ein vollständiger Transfer durch zwei Mitarbeitende nötig. Beim Essen musste ich die Nahrung löffelweise eingeben. Stuhlverlust laut Verlauf fast täglich, gestern und heute jeweils mehrfach.
+  - treppensteigen: gold=not_assessed (absent), evidence=None
+
+=== test_0033 ===
+Also, Frau Schubert hat das Frühstück unkompliziert geschafft. Sie hat die Brötchen selbst bestrichen und gegessen, ich musste nur den Kaffee einschenken. Bei der Toilettenbenutzung habe ich ihr beim Hinsetzen geholfen; die Reinigung danach hat sie allein geschafft. RR 122/76, Puls 81. Die Dusche hat sie gestern bereits selbstständig erledigt.
+  - essen: gold=10 (inferred), evidence='Sie hat die Brötchen selbst bestrichen und gegessen'
+
+=== test_0034 ===
+Herr Maier, 130/79, Puls 85. Beim Duschen habe ich ihn am Einstieg gehalten; Haare und Rücken wurden von mir gewaschen, den Rest erledigte er. Oberteil und Hose zog er selbst an; Socken und Schuhe habe ich ihm angezogen. Auf dem Flur ging er mit Rollator bis zur markierten 60-Meter-Stelle und wieder zurück, ohne körperliche Hilfe.
+  - aufstehen_gehen: gold=10 (explicit), evidence='Auf dem Flur ging er mit Rollator bis zur markierten 60-Meter-Stelle und wieder zurück, ohne körperliche Hilfe.'
+  - an_auskleiden: gold=5 (inferred), evidence='Oberteil und Hose zog er selbst an; Socken und Schuhe habe ich ihm angezogen.'
+
+=== test_0037 ===
+Herr Döring, 124/80, Puls 73. Er ist heute eine Etage hinauf und hinunter gegangen, ohne dass jemand neben ihm bleiben musste. Für die Dusche benötigte er Hilfe beim Aussteigen und beim Abtrocknen der Füße. Das Frühstück hat er selbst gegessen; ich habe lediglich den Joghurtdeckel geöffnet. Die Nacht war laut Übergabe unruhig.
+  - essen: gold=5 (inferred), evidence='ich habe lediglich den Joghurtdeckel geöffnet.'
+
+=== test_0038 ===
+Frau Seifert, RR 134/78, P 90. Das Ankleiden hat sie heute komplett selbst übernommen, einschließlich Kompressionsstrümpfen und Schuhen. Beim Wechsel vom Bett in den Sessel musste ich sie am Oberarm leicht hochziehen; den Weg im Zimmer bewältigte sie anschließend mit dem Rollator. Für die Körperpflege am Waschbecken habe ich ihr Gesicht und die Zähne übernommen, sie wusch nur die Hände.
+  - aufstehen_gehen: gold=5 (inferred), evidence='den Weg im Zimmer bewältigte sie anschließend mit dem Rollator.'

@@ -1,0 +1,38 @@
+{
+ "train_0180": {
+  "essen": 0,
+  "aufsetzen_umsetzen": 0,
+  "sich_waschen": 0,
+  "toilettenbenutzung": "not_assessed",
+  "baden_duschen": "not_assessed",
+  "aufstehen_gehen": 0,
+  "treppensteigen": 0,
+  "an_auskleiden": 0,
+  "stuhlkontinenz": "not_assessed",
+  "harnkontinenz": 0
+ },
+ "train_0181": {
+  "essen": 10,
+  "aufsetzen_umsetzen": 15,
+  "sich_waschen": 0,
+  "toilettenbenutzung": "not_assessed",
+  "baden_duschen": "not_assessed",
+  "aufstehen_gehen": 10,
+  "treppensteigen": 10,
+  "an_auskleiden": "not_assessed",
+  "stuhlkontinenz": "not_assessed",
+  "harnkontinenz": 5
+ },
+ "train_0182": {
+  "essen": 0,
+  "aufsetzen_umsetzen": "not_assessed",
+  "sich_waschen": 0,
+  "toilettenbenutzung": "not_assessed",
+  "baden_duschen": "not_assessed",
+  "aufstehen_gehen": "not_assessed",
+  "treppensteigen": "not_assessed",
+  "an_auskleiden": 0,
+  "stuhlkontinenz": "not_assessed",
+  "harnkontinenz": 0
+ }
+}

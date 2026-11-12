@@ -1,0 +1,16 @@
+{
+ "model": "claude-haiku-5-5",
+ "split": "test",
+ "shots": 6,
+ "n_notes": 40,
+ "cache": true,
+ "tokens": {
+  "in": 7936,
+  "cache_write": 2068,
+  "cache_read": 190612,
+  "out": 21746
+ },
+ "usd_per_1000_notes": 0.346,
+ "mean_seconds_per_note": 3.78,
+ "errors": []
+}
