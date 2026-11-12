@@ -34,7 +34,7 @@ nurse's answer if the agent asks a follow-up question about a missing item.
 
 Possible experiment: train on `note → true_score` vs `note → target` and compare hallucination rates on absent items.
 
-## Source files (`barthel_train_source.zip`)
+## Source files (`data/barthel_train_source`)
 | File | What it is |
 |---|---|
 | `generate.py` | Barthel level definitions, archetypes, label sampler (`sample_example`), API-based generator |

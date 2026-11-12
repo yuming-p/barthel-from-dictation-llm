@@ -66,7 +66,7 @@ condensed in `data/generate_synthetic_data.py` (`BARTHEL`, `GENERAL_RULES`).
 
 | File | Size | Written by | Notes |
 |---|---|---|---|
-| `data/barthel_train_source/train.json` | 200 notes | Claude Opus 5.5 | labels sampled first (seed 1), notes written per plan; see `data/barthel_train_source/DATA_CARD.md`. 180 for training, 20 for validation |
+| `data/barthel_train_source/train.json` | 200 notes | Claude Opus 5.5 | labels sampled first (seed 1), notes written per plan; see [`data/barthel_train_source/DATA_CARD.md`](data/barthel_train_source/DATA_CARD.md). 180 for training, 20 for validation |
 | `data/test/test.json` | 40 notes | ChatGPT, free text | written per plan; rewritten after review to avoid sentence templates and copied rubric wording |
 
 ### Label semantics (important)
@@ -197,12 +197,12 @@ Notes on these numbers:
 - **Home advantage:** see section 3.
 - Synthetic notes are cleaner than real dictations (no speech-recognition errors, more regular phrasing).
 - Labels assume the dictation is clinically correct.
-- Some score levels are rare in the training data (see `data/barthel_train_source/DATA_CARD.md`).
+- Some score levels are rare in the training data (see [`data/barthel_train_source/DATA_CARD.md`](data/barthel_train_source/DATA_CARD.md)).
 - **Small samples, everywhere.**
   - *Test:* 40 notes = 400 decisions, of which only 137 have a documented score (90 explicit, 47 inferred).
     Confidence intervals are wide (e.g. Gemma + LoRA accuracy 85-91 %), so differences of a few points,
     such as between the Claude runs, are not findings. Per-item results rest on only 9-24 documented cases
-    each (see `data/test/README_barthel_test_40.md`), so none are reported.
+    each (see [`data/test/README_barthel_test_40.md`](data/test/README_barthel_test_40.md)), so none are reported.
   - *Training and validation:* 180 notes to train and 20 to validate. The 20 validation notes are 200
     decisions, so one decision moves the score by 0.5 points and validation numbers are very noisy. How much
     more data would help the small model is unknown (no learning curve was run).
