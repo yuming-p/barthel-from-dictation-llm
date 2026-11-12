@@ -1,0 +1,8 @@
+{
+ "model": "gemma3-4b-lora",
+ "split": "test",
+ "n_notes": 40,
+ "mean_seconds_per_note": 6.85,
+ "usd_per_1000_notes": 0.952,
+ "assumed_gpu_usd_per_hour": 0.5
+}

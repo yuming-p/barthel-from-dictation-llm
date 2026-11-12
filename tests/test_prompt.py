@@ -1,9 +1,4 @@
-import os
-import sys
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-import prompt as P
+from barthel import prompt as P
 
 
 def test_plain_json_with_string_scores():
@@ -28,7 +23,7 @@ def test_content_is_not_repaired():
 
 def test_invalid_values_pass_through_for_eval_to_flag():
     out = P.parse_output('{"essen": "7", "sich_waschen": "yes"}')
-    assert out == {"essen": 7, "sich_waschen": "yes"}  # eval.py counts these as parse failures
+    assert out == {"essen": 7, "sich_waschen": "yes"}  # evaluation.py counts these as parse failures
 
 
 def test_schema_and_splits():

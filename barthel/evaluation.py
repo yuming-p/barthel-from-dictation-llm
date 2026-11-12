@@ -8,8 +8,8 @@ Prediction format: {note_id: {item: score | "not_assessed"}}.
 A missing note, missing item, or invalid value counts as a parse failure and as wrong.
 
 Usage:
-    python eval.py --gold data/test/test.json --preds preds.json
-    python eval.py --gold data/test/test.json --baselines --train data/barthel_train_source/train.json
+    python -m barthel.evaluation --gold data/test/test.json --preds preds.json
+    python -m barthel.evaluation --gold data/test/test.json --baselines --train data/barthel_train_source/train.json
 """
 from __future__ import annotations
 
@@ -185,7 +185,7 @@ def format_row(name: str, m: dict, ci: dict | None = None) -> str:
 
 
 def load_meta(preds_path: str) -> dict | None:
-    """run_api.py writes <name>.meta.json next to <name>.json (cost, latency)."""
+    """barthel.run_api writes <name>.meta.json next to <name>.json (cost, latency)."""
     p = Path(preds_path).with_suffix(".meta.json")
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
 

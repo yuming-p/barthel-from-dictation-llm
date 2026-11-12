@@ -1,7 +1,7 @@
-"""Run a Claude model over a split and save predictions in eval.py format.
+"""Run a Claude model over a split and save predictions in evaluation.py format.
 
-    uv run python run_api.py --model claude-haiku-5-5 --shots 0 --dry-run
-    uv run python run_api.py --model claude-haiku-5-5 --split test --shots 6   # final run only
+    uv run python -m barthel.run_api --model claude-haiku-5-5 --shots 0 --dry-run
+    uv run python -m barthel.run_api --model claude-haiku-5-5 --split test --shots 6   # final run only
 
 Auth: uses the default client (ANTHROPIC_API_KEY or the `ant auth login` profile).
 Writes runs/<name>.json (predictions) and runs/<name>.meta.json (tokens, latency, cost).
@@ -16,12 +16,12 @@ from pathlib import Path
 
 import anthropic
 
-import eval as ev
-import prompt as P
+from barthel import evaluation as ev
+from barthel import prompt as P
 
 # USD per 1M tokens (input, output); from the model table, checked 2026-11.
 PRICES = {"claude-haiku-5-5": (0.10, 0.50), "claude-sonnet-5-5": (2.0, 10.0), "claude-opus-5-5": (4.0, 20.0)}
-RUNS = Path(__file__).parent / "runs"
+RUNS = P.ROOT / "runs"
 
 
 CACHE = {"type": "ephemeral"}  # 5-min TTL; every read refreshes it, so a continuous run stays warm

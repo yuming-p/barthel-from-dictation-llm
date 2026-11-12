@@ -6,11 +6,11 @@ import random
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).resolve().parent.parent  # project root (contains barthel/ and data/)
 sys.path.insert(0, str(ROOT / "data"))
 import generate_synthetic_data as _gen  # noqa: E402  (BARTHEL level texts, GENERAL_RULES)
 
-from eval import ITEMS, LEVELS, NA  # noqa: E402
+from barthel.evaluation import ITEMS, LEVELS, NA  # noqa: E402
 
 TRAIN_PATH = ROOT / "data" / "barthel_train_source" / "train.json"
 TEST_PATH = ROOT / "data" / "test" / "test.json"
@@ -86,7 +86,7 @@ def few_shot_messages(k: int, seed: int = 0) -> list[dict]:
 
 def parse_output(text: str) -> dict | None:
     """Model text -> {item: int | 'not_assessed'}; None if it is not a valid JSON object of the right shape.
-    Individual bad values are passed through unchanged so eval.py counts them as parse failures."""
+    Individual bad values are passed through unchanged so evaluation.py counts them as parse failures."""
     if not isinstance(text, str):
         return None
     try:
