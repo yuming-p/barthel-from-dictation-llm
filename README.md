@@ -1,6 +1,6 @@
 # Barthel index from nursing dictations: small fine-tuned model vs. frontier API
 
-A small demo project inspired by [voize case study](https://www.voize.ai/de/loesungen/krankenhaus#case-study): an LLM reads a German nursing dictation and fills in the **Barthel index**
+An LLM reads a German nursing dictation and fills in the **Barthel index**
 (10 activities of daily living, 0–100 points). It answers one question:
 
 > When does a small, fine-tuned open model match a rented frontier model on quality,
@@ -61,6 +61,8 @@ abstention: 66 % of the decisions are `not_assessed`, so a model that always abs
 
 Scoring rules follow the Barthel index in ICD-10-GM ([BfArM](https://klassifikationen.bfarm.de/icd-10-gm/kode-suche/htmlgm2024/zusatz-06-anh-barthelindex.htm), based on the Hamburg manual),
 condensed in `data/generate_synthetic_data.py` (`BARTHEL`, `GENERAL_RULES`).
+
+**Background:** The task is modelled on voice-based nursing documentation, where a spoken note is turned into structured entries and assessments such as the Barthel index. The Barthel index is also a standard assessment in rehabilitation and geriatric care.
 
 ## 2. Data
 
